@@ -33,6 +33,9 @@ func newDNSCommand() *cobra.Command {
 		newDNSDNSSecCmd(),
 		newDNSZoneCmd(),
 		newDNSResolverCmd(),
+		newDNSSecurityCmd(),
+		newDNSALookupCmd(),
+		newDNSAAAA(),
 	)
 
 	return cmd

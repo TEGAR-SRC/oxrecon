@@ -38,6 +38,7 @@ func newHTTPCommand() *cobra.Command {
 		newHTTPScreenshotCmd(),
 		newHTTPDirCmd(),
 		newHTTPCrawlCmd(),
+		newHTTPSecurityCmd(),
 	)
 	return cmd
 }
