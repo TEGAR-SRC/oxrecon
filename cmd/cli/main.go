@@ -17,7 +17,7 @@ combining DNS, WHOIS, HTTP, SSL/TLS, port scanning, subdomain enumeration,
 BGP/RPKI analysis, technology detection, and OSINT capabilities into a single CLI.
 
 Inspired by Nmap, HTTPX, Subfinder, Dig, Whois, Wappalyzer, Naabu, and Amass.
-Source: https://github.com/tegarpratama/oxrecon`,
+Source: https://github.com/TEGAR-SRC/oxrecon`,
 		Version: "1.0.0",
 		SilenceUsage: true,
 		SilenceErrors: true,
