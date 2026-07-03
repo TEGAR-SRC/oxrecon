@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -181,9 +182,6 @@ func newOSINTWaybackCmd() *cobra.Command {
 			domain := args[0]
 			timeout := getTimeout(cmd)
 
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
-
 			url := fmt.Sprintf("https://web.archive.org/cdx/search/cdx?url=%s/*&output=json&limit=100", domain)
 
 			fmt.Fprintf(os.Stderr, "Querying Wayback Machine for %s...\n", domain)
@@ -193,10 +191,51 @@ func newOSINTWaybackCmd() *cobra.Command {
 				return fmt.Errorf("Wayback Machine query failed: %w", err)
 			}
 
-			fmt.Printf("Wayback Machine Results for %s:\n", domain)
-			fmt.Println(strings.Repeat("-", 50))
-			fmt.Println(data)
-			_ = ctx
+			fmt.Printf("\nWayback Machine Results for %s:\n", domain)
+			fmt.Println(strings.Repeat("-", 70))
+
+			var rows [][]string
+			raw := strings.TrimSpace(data)
+			if strings.HasPrefix(raw, "[") {
+				var parsed [][]string
+				if err := json.Unmarshal([]byte(raw), &parsed); err == nil {
+					for i, row := range parsed {
+						if i == 0 {
+							continue // skip header
+						}
+						if len(row) >= 6 {
+							ts := row[1]
+							origURL := row[2]
+							status := row[4]
+							archURL := fmt.Sprintf("https://web.archive.org/web/%s/%s", ts, origURL)
+
+							year := "????"
+							if len(ts) >= 4 {
+								year = ts[:4]
+							}
+							rows = append(rows, []string{
+								year,
+								status,
+								origURL[:min(len(origURL), 40)],
+								archURL,
+							})
+						}
+					}
+				}
+			}
+
+			if len(rows) == 0 {
+				fmt.Println("No historical snapshots found.")
+				return nil
+			}
+
+			fmt.Printf("Found %d snapshots:\n\n", len(rows))
+			fmt.Printf("%-6s %-8s %-42s %s\n", "YEAR", "STATUS", "URL", "ARCHIVE LINK")
+			fmt.Println(strings.Repeat("-", 110))
+			for _, r := range rows {
+				fmt.Printf("%-6s %-8s %-42s %s\n", r[0], r[1], r[2], r[3])
+			}
+
 			return nil
 		},
 	}
