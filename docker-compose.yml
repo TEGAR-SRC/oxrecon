@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  webtool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webtool
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./reports:/root/reports
+      - ./configs:/etc/webtool
+    environment:
+      - WEBTOOL_CONFIG=/etc/webtool/config.yaml
+      - SHODAN_API_KEY=${SHODAN_API_KEY:-}
+      - CENSYS_API_ID=${CENSYS_API_ID:-}
+      - CENSYS_API_SECRET=${CENSYS_API_SECRET:-}
+    command: ["api"]
+    restart: unless-stopped
+
+  webtool-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webtool-dev
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/app
+    entrypoint: ["go", "run", "main.go"]
+    profiles:
+      - dev

@@ -1,0 +1,77 @@
+# WebTool Configuration
+# =====================
+
+http:
+  threads: 10
+  timeout: 30s
+  rate_limit: 0
+  proxy: ""
+  follow_redirects: false
+  allow_insecure: false
+  user_agent: "WebTool/1.0"
+  random_agent: true
+
+dns:
+  resolvers:
+    - "8.8.8.8:53"
+    - "1.1.1.1:53"
+    - "9.9.9.9:53"
+  timeout: 10s
+  retry_count: 3
+
+network:
+  scan_timeout: 5s
+  max_ports: 1000
+  ping_count: 4
+  traceroute_max_hops: 30
+  syn_scan: false
+
+ssl:
+  ports:
+    - 443
+    - 8443
+    - 465
+    - 993
+    - 995
+  insecure: false
+
+subdomain:
+  wordlist: ""
+  threads: 10
+  recursive: false
+  max_depth: 3
+  sources:
+    - "crt.sh"
+    - "dns"
+    - "commonspeak"
+
+osint:
+  shodan_api_key: ""
+  censys_api_id: ""
+  censys_api_secret: ""
+  securitytrails_api_key: ""
+  virustotal_api_key: ""
+
+output:
+  format: json
+  silent: false
+  verbose: false
+  color: true
+  output_dir: "./reports"
+
+cache:
+  enabled: true
+  ttl: 1h
+  engine: memory
+
+server:
+  port: 8080
+  host: "0.0.0.0"
+  api_key: ""
+  cors: true
+  rate_limit: 100
+
+logging:
+  level: info
+  file: ""
+  format: json

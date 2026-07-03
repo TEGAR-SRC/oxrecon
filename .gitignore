@@ -1,0 +1,50 @@
+# Binaries
+build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test
+*.test
+*.out
+coverage.html
+cpu.out
+mem.out
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/
+
+# Reports
+reports/
+
+# Temp
+tmp/
+*.tmp
+
+# Env
+.env
+.env.*
+
+# Docker
+docker-compose.override.yml
+
+# Cache
+.cache/
+.gocache/
+
+# Plugins (built)
+plugins/*.so
+plugins/*.dylib
