@@ -28,7 +28,9 @@ Built with **Clean Architecture**, **goroutine worker pool**, **context-aware** 
   - [Domain](#domain-3)
   - [Network](#network-6)
   - [HTTP](#http-12)
-  - [SSL/TLS](#ssltls-4)
+  - [SSL/TLS](#ssltls-5-)
+  - [Port Detail](#port-detail-3)
+  - [Discovery](#discovery-7)
   - [Subdomain](#subdomain-5)
   - [BGP / RPKI / IP Block](#bgp--rpki--ip-block-22-)
   - [OSINT](#osint-7)
@@ -40,6 +42,11 @@ Built with **Clean Architecture**, **goroutine worker pool**, **context-aware** 
   - [Port Scanning](#port-scanning)
   - [Full Scan](#full-scan-1)
   - [Output Formats](#output-formats)
+  - [Email Security](#email-security-spfdmarcdkim)
+  - [HTTP Security](#http-security-cspcookiefavicon)
+  - [SSL Chain](#ssl-certificate-chain)
+  - [Banner Grabbing](#banner-grabbing)
+  - [Discovery Providers](#discovery-providers)
   - [Global Flags](#global-flags)
 - [GitHub Packages](#github-packages-1)
   - [Docker Images (ghcr.io)](#docker-images-ghcr)
@@ -136,7 +143,7 @@ go build -o oxrecon main.go
 
 ## Commands
 
-### DNS (10)
+### DNS (15 ⭐)
 | Command | Description | Example |
 |---------|-------------|---------|
 | `dns lookup` | A/AAAA records | `oxrecon dns lookup example.com` |
@@ -150,6 +157,11 @@ go build -o oxrecon main.go
 | `dns dnssec` | DNSSEC check | `oxrecon dns dnssec example.com` |
 | `dns zone` | Zone transfer | `oxrecon dns zone example.com` |
 | `dns resolver` | Resolver benchmark | `oxrecon dns resolver example.com` |
+| **`dns security spf`** | **SPF record parser** | **`oxrecon dns security spf example.com`** |
+| **`dns security dmarc`** | **DMARC policy parser** | **`oxrecon dns security dmarc example.com`** |
+| **`dns security dkim`** | **DKIM selectors scan** | **`oxrecon dns security dkim example.com`** |
+| `dns a` | DNS A record | `oxrecon dns a example.com` |
+| `dns aaaa` | DNS AAAA (IPv6) | `oxrecon dns aaaa example.com` |
 
 ### Domain (3)
 | Command | Description | Example |
@@ -169,7 +181,7 @@ go build -o oxrecon main.go
 | `network cidr` | CIDR analysis | `oxrecon network cidr 10.0.0.0/8` |
 | `network reverse-ip` | Reverse IP | `oxrecon network reverse-ip 8.8.8.8` |
 
-### HTTP (12)
+### HTTP (16 ⭐)
 | Command | Description | Example |
 |---------|-------------|---------|
 | `http probe` | HTTP endpoint check | `oxrecon http probe example.com` |
@@ -184,14 +196,37 @@ go build -o oxrecon main.go
 | `http screenshot` | Page info (text) | `oxrecon http screenshot example.com` |
 | `http dir` | Directory busting | `oxrecon http dir example.com` |
 | `http crawl` | Link extraction | `oxrecon http crawl example.com` |
+| **`http security csp`** | **CSP analyzer** | **`oxrecon http security csp example.com`** |
+| **`http security cookie`** | **Cookie flags analyzer** | **`oxrecon http security cookie example.com`** |
+| **`http security favicon`** | **Favicon hash (Shodan)** | **`oxrecon http security favicon example.com`** |
+| **`http security ws`** | **WebSocket detection** | **`oxrecon http security ws example.com`** |
+| **`http security http2`** | **HTTP/2 + HTTP/3 check** | **`oxrecon http security http2 example.com`** |
 
-### SSL/TLS (4)
+### SSL/TLS (5 ⭐)
 | Command | Description | Example |
 |---------|-------------|---------|
 | `ssl cert` | Certificate details | `oxrecon ssl cert example.com` |
 | `ssl cipher` | Cipher suites | `oxrecon ssl cipher example.com` |
 | `ssl tls` | TLS version support | `oxrecon ssl tls example.com` |
 | `ssl expire` | Certificate expiry | `oxrecon ssl expire example.com` |
+| **`ssl chain`** | **Full chain + OCSP** | **`oxrecon ssl chain example.com`** |
+
+### Port Detail (3)
+| Command | Description | Example |
+|---------|-------------|---------|
+| `detail banner <host:port>` | Single-port banner grab | `oxrecon detail banner 8.8.8.8:80` |
+| `detail version <ip>` | Multi-port service version | `oxrecon detail version 10.0.0.1` |
+| `detail multi <ip> [ports]` | Custom ports + banners | `oxrecon detail multi 10.0.0.1 80 443 22` |
+
+### Discovery (7)
+| Command | Description | API Key |
+|---------|-------------|---------|
+| `discovery certspotter` | CertSpotter subdomains | Public API |
+| `discovery rapiddns` | RapidDNS subdomains | Public API |
+| `discovery hackertarget` | HackerTarget subdomains | Public API |
+| `discovery bufferover` | BufferOver subdomains | Public API |
+| `discovery anubis` | Anubis subdomains | Public API |
+| `discovery all <domain>` | **All providers combined** | Public API |
 
 ### Subdomain (5)
 | Command | Description | Example |
@@ -341,6 +376,60 @@ oxrecon dns lookup example.com --format json
 oxrecon dns lookup example.com --format yaml
 oxrecon dns lookup example.com --format csv
 oxrecon scan example.com --format json --output scan.json
+```
+
+### Email Security (SPF/DMARC/DKIM)
+```bash
+oxrecon dns security spf example.com
+# → SPF analysis with includes, ip4/ip6, mechanisms
+
+oxrecon dns security dmarc example.com
+# → DMARC policy: reject/quarantine/none, pct, rua/ruf
+
+oxrecon dns security dkim example.com
+# → Scans common DKIM selectors (google, selector1, mandrill, etc.)
+```
+
+### HTTP Security (CSP/Cookie/Favicon)
+```bash
+oxrecon http security csp example.com
+# → Content-Security-Policy analysis (unsafe-inline, unsafe-eval)
+
+oxrecon http security cookie example.com
+# → Cookie flags: Secure, HttpOnly, SameSite
+
+oxrecon http security favicon example.com
+# → MD5/SHA256/Base64 hash → use for Shodan/ZoomEye search
+
+oxrecon http security http2 example.com
+# → HTTP/2 + HTTP/3 (Alt-Svc) support check
+```
+
+### SSL Certificate Chain
+```bash
+oxrecon ssl chain example.com
+# → Full chain: Leaf → Intermediate → Root CA + OCSP
+```
+
+### Banner Grabbing
+```bash
+oxrecon detail banner 8.8.8.0:80
+# → HTTP banner
+
+oxrecon detail banner 10.0.0.1:22
+# → SSH version/banner
+
+oxrecon detail version 10.0.0.1
+# → Multi-port service version detection
+```
+
+### Discovery Providers
+```bash
+oxrecon discovery all example.com
+# → CertSpotter + RapidDNS + HackerTarget + BufferOver + Anubis + AlienVault
+
+oxrecon discovery certspotter example.com
+# → CertSpotter-only results
 ```
 
 ### Global Flags
