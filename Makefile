@@ -1,6 +1,6 @@
-.PHONY: build run test lint clean docker dev help
+﻿.PHONY: build run test lint clean docker dev help
 
-APP_NAME := webtool
+APP_NAME := oxrecon
 BUILD_DIR := build
 
 help: ## Show available commands

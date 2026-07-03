@@ -1,4 +1,4 @@
-package cli
+﻿package cli
 
 import (
 	"fmt"
@@ -12,18 +12,18 @@ func newTUICommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "tui",
 		Short: "Launch Terminal User Interface",
-		Long:  `Launch an interactive TUI dashboard for WebTool with live scanning, progress, and logs.`,
+		Long:  `Launch an interactive TUI dashboard for oxrecon with live scanning, progress, and logs.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("╔══════════════════════════════════════════════╗")
-			fmt.Println("║         WebTool TUI — Coming Soon            ║")
-			fmt.Println("╚══════════════════════════════════════════════╝")
+			fmt.Println("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—")
+			fmt.Println("â•‘         oxrecon TUI â€” Coming Soon            â•‘")
+			fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 			fmt.Println()
 			fmt.Println("TUI requires BubbleTea library (not yet bundled).")
 			fmt.Println("Use CLI commands instead:")
 			fmt.Println()
-			fmt.Println("  webtool dns lookup example.com")
-			fmt.Println("  webtool scan example.com --full")
-			fmt.Println("  webtool whois example.com")
+			fmt.Println("  oxrecon dns lookup example.com")
+			fmt.Println("  oxrecon scan example.com --full")
+			fmt.Println("  oxrecon whois example.com")
 			fmt.Println()
 			fmt.Printf("Current time: %s\n", time.Now().Format(time.RFC3339))
 			return nil
@@ -35,10 +35,10 @@ func newAPICommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "api",
 		Short: "Start REST API server",
-		Long:  `Start an HTTP API server exposing all WebTool functions as REST endpoints.`,
+		Long:  `Start an HTTP API server exposing all oxrecon functions as REST endpoints.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			port := 8080
-			fmt.Fprintf(os.Stderr, "WebTool API Server starting on :%d\n", port)
+			fmt.Fprintf(os.Stderr, "oxrecon API Server starting on :%d\n", port)
 			fmt.Println()
 			fmt.Println("Endpoints:")
 			fmt.Println("  GET /api/v1/health          - Health check")
@@ -59,12 +59,12 @@ func newAPICommand() *cobra.Command {
 func newConfigCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "config",
-		Short: "Manage WebTool configuration",
+		Short: "Manage oxrecon configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("WebTool Configuration")
+			fmt.Println("oxrecon Configuration")
 			fmt.Println("====================")
 			fmt.Println()
-			fmt.Println("Config file: ~/.webtool/config.yaml")
+			fmt.Println("Config file: ~/.oxrecon/config.yaml")
 			fmt.Println()
 			fmt.Println("Available settings:")
 			fmt.Println("  threads:    10              (default worker threads)")
@@ -84,12 +84,12 @@ func newConfigCommand() *cobra.Command {
 func newPluginCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "plugin",
-		Short: "Manage WebTool plugins",
+		Short: "Manage oxrecon plugins",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("WebTool Plugin Manager")
+			fmt.Println("oxrecon Plugin Manager")
 			fmt.Println("======================")
 			fmt.Println()
-			fmt.Println("Plugin system allows extending WebTool with custom scan modules.")
+			fmt.Println("Plugin system allows extending oxrecon with custom scan modules.")
 			fmt.Println()
 			fmt.Println("Plugins directory: ./plugins/")
 			fmt.Println("Plugin interface: Plugin { Name(), Version(), Execute(), Validate() }")
@@ -108,7 +108,7 @@ func newUpdateCommand() *cobra.Command {
 		Use:   "update",
 		Short: "Check for updates",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("WebTool v1.0.0")
+			fmt.Println("oxrecon v1.0.0")
 			fmt.Println("Current: latest")
 			fmt.Println("No updates available.")
 			return nil
@@ -121,7 +121,7 @@ func newVersionCommand() *cobra.Command {
 		Use:   "version",
 		Short: "Print version information",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("WebTool v1.0.0")
+			fmt.Println("oxrecon v1.0.0")
 			fmt.Println("Go version: go1.23+")
 			fmt.Println("Built with: Cobra CLI Framework")
 			fmt.Println("Architecture: Clean Architecture + Worker Pool")

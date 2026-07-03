@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	bgp "webtool/pkg/network"
+	bgp "github.com/TEGAR-SRC/oxrecon/pkg/network"
 )
 
 func newBGPCommand() *cobra.Command {

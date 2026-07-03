@@ -1,29 +1,29 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
-  webtool:
+  oxrecon:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: webtool
+    container_name: oxrecon
     ports:
       - "8080:8080"
     volumes:
       - ./reports:/root/reports
-      - ./configs:/etc/webtool
+      - ./configs:/etc/oxrecon
     environment:
-      - WEBTOOL_CONFIG=/etc/webtool/config.yaml
+      - oxrecon_CONFIG=/etc/oxrecon/config.yaml
       - SHODAN_API_KEY=${SHODAN_API_KEY:-}
       - CENSYS_API_ID=${CENSYS_API_ID:-}
       - CENSYS_API_SECRET=${CENSYS_API_SECRET:-}
     command: ["api"]
     restart: unless-stopped
 
-  webtool-dev:
+  oxrecon-dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: webtool-dev
+    container_name: oxrecon-dev
     ports:
       - "8081:8080"
     volumes:

@@ -193,7 +193,7 @@ go build -o oxrecon main.go
 | `http waf` | WAF detection | `oxrecon http waf example.com` |
 | `http tech` | Technology detection | `oxrecon http tech example.com` |
 | `http cdn` | CDN detection | `oxrecon http cdn example.com` |
-| `http screenshot` | Page info (text) | `oxrecon http screenshot example.com` |
+| **`http screenshot`** | **Real screenshot via chromedp + text fallback** | **`oxrecon http screenshot example.com`** |
 | `http dir` | Directory busting | `oxrecon http dir example.com` |
 | `http crawl` | Link extraction | `oxrecon http crawl example.com` |
 | **`http security csp`** | **CSP analyzer** | **`oxrecon http security csp example.com`** |

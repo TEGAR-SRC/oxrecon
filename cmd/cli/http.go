@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/chromedp/chromedp"
 	"github.com/spf13/cobra"
 )
 
@@ -736,59 +737,89 @@ func detectCDN(ip string) string {
 func newHTTPScreenshotCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "screenshot [url]",
-		Short: "Take a screenshot of a webpage",
-		Long:  `Screenshot a webpage using HTTP rendering (text-based fallback if no headless browser).`,
+		Short: "Take a real screenshot of a webpage using headless Chrome",
+		Long:  `Take a full-page screenshot (1920x1080) using chromedp (Chrome headless). Falls back to text summary if Chrome is unavailable.`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			targetURL := args[0]
-			client := httpClient(cmd)
-
-			ctx, cancel := context.WithTimeout(context.Background(), getTimeout(cmd))
-			defer cancel()
-
 			if !strings.HasPrefix(targetURL, "http://") && !strings.HasPrefix(targetURL, "https://") {
 				targetURL = "https://" + targetURL
 			}
 
-			req, _ := http.NewRequest("GET", targetURL, nil)
-			req = req.WithContext(ctx)
-			req.Header.Set("User-Agent", "WebTool/1.0")
+			timeout := getTimeout(cmd)
+			outFile := cmd.Flag("output").Value.String()
 
-			resp, err := client.Do(req)
+			// Try chromedp for real screenshot
+			ssCtx, ssCancel := chromedp.NewContext(context.Background())
+			defer ssCancel()
+
+			select {
+			case <-time.After(timeout):
+				return fmt.Errorf("timeout waiting for Chrome")
+			default:
+			}
+
+			var buf []byte
+
+			// Check if Chrome is available
+			err := chromedp.Run(ssCtx,
+				chromedp.EmulateViewport(1920, 1080),
+				chromedp.Navigate(targetURL),
+				chromedp.WaitReady("body"),
+				chromedp.CaptureScreenshot(&buf),
+			)
 			if err != nil {
-				return fmt.Errorf("failed to fetch page: %w", err)
+				// Fallback: text-based summary
+				fmt.Fprintf(os.Stderr, "[!] chromedp unavailable (%v). Fallback to text summary.\n", err)
+				client := httpClient(cmd)
+				req, _ := http.NewRequest("GET", targetURL, nil)
+				req.Header.Set("User-Agent", randomAgent())
+				resp, err := client.Do(req)
+				if err != nil {
+					return err
+				}
+				defer resp.Body.Close()
+
+				body, _ := io.ReadAll(resp.Body)
+				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+
+				fmt.Printf("\n─── Screenshot (text fallback) ───────────────────────\n")
+				fmt.Printf("URL:         %s\n", resp.Request.URL.String())
+				fmt.Printf("Status:      %d %s\n", resp.StatusCode, resp.Status)
+				fmt.Printf("Title:       %s\n", doc.Find("title").Text())
+				fmt.Printf("Body:        %d bytes\n", len(body))
+				fmt.Printf("Links:       %d\n", doc.Find("a").Length())
+				fmt.Printf("Images:      %d\n", doc.Find("img").Length())
+				fmt.Printf("Scripts:     %d\n", doc.Find("script").Length())
+				h1 := doc.Find("h1").First().Text()
+				if h1 != "" {
+					fmt.Printf("H1:          %s\n", h1)
+				}
+				metaDesc, _ := doc.Find("meta[name=description]").Attr("content")
+				if metaDesc != "" {
+					fmt.Printf("Description: %s\n", metaDesc)
+				}
+				return nil
 			}
-			defer resp.Body.Close()
 
-			body, _ := io.ReadAll(resp.Body)
-			doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
-
-			fmt.Printf("Screenshot (text-based) for %s:\n", targetURL)
-			fmt.Println(strings.Repeat("-", 60))
-
-			title := doc.Find("title").Text()
-			fmt.Printf("Title: %s\n", title)
-
-			fmt.Printf("Body: %d bytes\n", len(body))
-			fmt.Printf("Status: %d\n", resp.StatusCode)
-
-			h1 := doc.Find("h1").First().Text()
-			if h1 != "" {
-				fmt.Printf("H1: %s\n", h1)
+			// Real screenshot success
+			screenshotPath := fmt.Sprintf("screenshot_%d.png", time.Now().Unix())
+			if outFile != "" {
+				screenshotPath = outFile
+				if !strings.HasSuffix(screenshotPath, ".png") {
+					screenshotPath += ".png"
+				}
 			}
 
-			metaDesc, _ := doc.Find("meta[name=description]").Attr("content")
-			if metaDesc != "" {
-				fmt.Printf("Description: %s\n", metaDesc)
+			if err := os.WriteFile(screenshotPath, buf, 0644); err != nil {
+				return err
 			}
 
-			linkCount := doc.Find("a").Length()
-			imgCount := doc.Find("img").Length()
-			scriptCount := doc.Find("script").Length()
-			linkTags := doc.Find("link").Length()
-
-			fmt.Printf("Links: %d, Images: %d, Scripts: %d, Link Tags: %d\n",
-				linkCount, imgCount, scriptCount, linkTags)
+			fmt.Printf("\n─── Screenshot taken ───────────────────────────────\n")
+			fmt.Printf("URL:         %s\n", targetURL)
+			fmt.Printf("Resolution:  1920x1080\n")
+			fmt.Printf("File:        %s\n", screenshotPath)
+			fmt.Printf("Size:        %d bytes\n", len(buf))
 			return nil
 		},
 	}

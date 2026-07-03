@@ -1,6 +1,6 @@
 package main
 
-import "webtool/cmd/cli"
+import "github.com/TEGAR-SRC/oxrecon/cmd/cli"
 
 func main() {
 	cli.Execute()

@@ -32,7 +32,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default: ~/.webtool/config.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default: ~/.oxrecon/config.yaml)")
 	rootCmd.PersistentFlags().IntP("threads", "t", 10, "worker threads")
 	rootCmd.PersistentFlags().DurationP("timeout", "o", 30_000_000_000, "request timeout (e.g. 30s)")
 	rootCmd.PersistentFlags().IntP("rate", "r", 0, "rate limit per second (0 = unlimited)")
